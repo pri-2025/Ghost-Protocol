@@ -287,6 +287,11 @@ with col_sim:
                 }
             }
 
+        if sentinel_telemetry:
+            recon_error = float(sentinel_telemetry.get("loss_score", sentinel_telemetry.get("reconstruction_error", recon_error)))
+            drunix_state = sentinel_telemetry.get("drunix_block", sentinel_telemetry.get("drunix_block_state", drunix_state))
+            block_token = drunix_state
+
         response_data = {
             "transaction_id": tx_id,
             "timestamp": timestamp_str,

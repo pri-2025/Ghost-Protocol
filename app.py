@@ -155,6 +155,7 @@ def health():
     }
 
 @app.post("/api/v1/sentinel/evaluate")
+@app.post("/evaluate")
 async def evaluate_transaction(tx: TransactionPayload):
     try:
         amt = tx.amount
@@ -166,11 +167,11 @@ async def evaluate_transaction(tx: TransactionPayload):
         is_attack_active = bool(tx.is_adversarial_simulated or tx.is_attack)
 
         # -------------------------------------------------------------
-        # Attack Simulation: Inject structural micro-perturbation (+0.005% drift)
+        # Attack Simulation: Inject micro-perturbation (+0.005% boundary displacement)
         # -------------------------------------------------------------
         if is_attack_active:
-            # Apply specific drift coefficient (+0.005% calculation modifier)
-            drift_modifier = 0.005 / 100.0  # +0.005%
+            # Apply adversarial boundary displacement vector of (+0.005%)
+            drift_modifier = 0.005 / 100.0  # +0.005% calculation modifier
             amt += amt * drift_modifier
             vel = int(vel * (1.0 + drift_modifier) + 1)
             dev = dev + (dev * drift_modifier) + 0.005
@@ -190,28 +191,33 @@ async def evaluate_transaction(tx: TransactionPayload):
         SAFETY_THRESHOLD = 7.5
 
         if is_attack_active:
-            # Reconstruction error spikes significantly past safety ceiling (Threshold = 7.5)
-            # Simulated range 9.42 - 14.89
-            reconstruction_error = float(np.random.uniform(9.42, 14.89))
+            # Mathematical divergence loss score between 9.42 and 14.89 (explicitly 11.78)
+            loss_score = 11.78
+            reconstruction_error = 11.78
+            verdict = "SANDBOX_ISOLATE"
+            drunix_block = "MUTATION_BLOCKED"
             perturbation_delta = round(reconstruction_error - 2.1, 4)
             sentinel_status = "SANDBOX_ISOLATE"
             ledger_action = "MUTATION_BLOCKED"
             block_root_token = "MUTATION_BLOCKED"
             confidence = 0.998
         else:
-            # Normal paths: keep reconstructed latent loss value below 4.0 (1.05 - 3.42)
+            # Clear transaction payloads: keep loss score bounded between 1.05 and 3.42
             reconstruction_error = float(np.random.uniform(1.05, 3.42))
-            perturbation_delta = round(abs(reconstruction_error - 1.8), 4)
-            sentinel_status = "CLEAR_TO_EXECUTE"
+            loss_score = round(reconstruction_error, 2)
+            verdict = "LEDGER_WRITE"
             mock_block_id = np.random.randint(100000, 999999)
             mock_token = f"COMMITTED_BLOCK_{mock_block_id}"
+            drunix_block = mock_token
+            perturbation_delta = round(abs(reconstruction_error - 1.8), 4)
+            sentinel_status = "CLEAR_TO_EXECUTE"
             ledger_action = "COMMITTED"
             block_root_token = mock_token
             confidence = 0.985
 
         # 3. If adversarial payload detected, activate Honeypot Sandbox
         honeypot_info = None
-        if sentinel_status == "SANDBOX_ISOLATE":
+        if verdict == "SANDBOX_ISOLATE":
             decoy_session = {
                 "session_id": f"HNP-{int(time.time()*1000)%1000000}",
                 "target_transaction_id": tx.transaction_id,
@@ -226,15 +232,18 @@ async def evaluate_transaction(tx: TransactionPayload):
 
         telemetry = {
             "transaction_id": tx.transaction_id,
+            "verdict": verdict,
+            "loss_score": loss_score,
+            "drunix_block": drunix_block,
             "reconstruction_error": round(reconstruction_error, 4),
             "safety_threshold": SAFETY_THRESHOLD,
             "mahalanobis_distance": round(mahalanobis_dist, 4),
             "perturbation_delta": perturbation_delta,
             "status": sentinel_status,
-            "risk_verdict": sentinel_status,
+            "risk_verdict": verdict,
             "ledger_action": ledger_action,
-            "drunix_block_state": block_root_token,
-            "block_root_token": block_root_token,
+            "drunix_block_state": drunix_block,
+            "block_root_token": drunix_block,
             "action_required": is_attack_active,
             "standard_ai_verdict": std_verdict,
             "standard_ai_confidence": round(1.0 - std_fraud_score, 4),
