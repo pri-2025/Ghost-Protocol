@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+target/
+.idea/
+*.iml
+.vscode/
+tools/apache-maven-3.9.6/
