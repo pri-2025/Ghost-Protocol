@@ -168,10 +168,11 @@ with st.sidebar:
     st.metric(
         "Ghost Attacks Neutralized",
         st.session_state.ghost_neutralized,
-        delta=f"+{st.session_state.ghost_neutralized} Isolated" if st.session_state.ghost_neutralized > 0 else None
+        delta="+1 Isolated" if st.session_state.ghost_neutralized > 0 else None,
+        delta_color="normal"
     )
     
-    if st.button("🧹 Clear Telemetry History"):
+    if st.button("🧹 Clear Telemetry History", use_container_width=True):
         st.session_state.history = []
         st.session_state.honeypot_events = []
         st.session_state.total_settled = 0
@@ -217,6 +218,7 @@ with col_sim:
 
     if transmit_clicked:
         tx_id = f"TX-FEDWIRE-{int(time.time() * 1000) % 10000000}"
+        timestamp_str = time.strftime("%H:%M:%S")
 
         if inject_attack:
             # Toggle ON: critical Latent Reconstruction Error score between 9.42 and 14.89
@@ -287,6 +289,8 @@ with col_sim:
 
         response_data = {
             "transaction_id": tx_id,
+            "timestamp": timestamp_str,
+            "amount": amount,
             "execution_status": exec_status,
             "reconstruction_error": recon_error,
             "drunix_block_state": drunix_state,
@@ -314,7 +318,7 @@ with col_sim:
         st.rerun()
 
 with col_monitor:
-    st.markdown("### ⚡ Live Dual-Track Verification Matrix")
+    st.markdown("### ⚡ Live Verification Matrix")
     
     if st.session_state.history:
         latest = st.session_state.history[0]  # Newest transaction is at index 0
@@ -324,111 +328,108 @@ with col_monitor:
         mahal_dist = telemetry.get("mahalanobis_distance", 0.0)
         is_attack = latest.get("is_attack", False) or (status == "🚨 ROUTED TO DECOY SANDBOX") or (status == "ROUTED_TO_HONEYPOT")
 
-        # Dynamic Notification Banner & Anomaly Score Metric
+        # 1. Primary Minimalist Alert & Anomaly Metric Container
         if is_attack:
-            st.error("🚨 ALERT: Ghost Protocol Injection Intercepted!")
-            st.metric(
-                label="Model Reconstruction Anomaly Score",
-                value=f"{recon_error:.3f}",
-                delta="CRITICAL THRESHOLD VIOLATION",
-                delta_color="inverse"
-            )
-            st.warning("Data was successfully isolated to the Honeypot Sandbox container.")
+            with st.container(border=True):
+                st.error("### Ecosystem Integrity: Anomaly Intercepted")
+                st.metric(
+                    label="Model Reconstruction Loss Anomaly Score",
+                    value=f"{recon_error:.3f}",
+                    delta="CRITICAL THRESHOLD VIOLATION",
+                    delta_color="inverse"
+                )
+                st.warning("Transaction safely isolated to containerized Decoy Honeypot Sandbox.")
         else:
-            st.success("✅ SECURE: Telemetry Structural Integrity Verified")
-            st.metric(
-                label="Model Reconstruction Anomaly Score",
-                value=f"{recon_error:.3f}",
-                delta="- Normal Distribution Bounds",
-                delta_color="normal"
-            )
+            with st.container(border=True):
+                st.success("### Ecosystem Integrity: Verified Secure")
+                st.metric(
+                    label="Model Reconstruction Loss Anomaly Score",
+                    value=f"{recon_error:.3f}",
+                    delta="- Safely within standard distribution bounds",
+                    delta_color="normal"
+                )
 
-        # DUAL TRACK COMPARISON: The Core Hackathon WOW Factor!
-        track_col1, track_col2 = st.columns(2)
-        
-        with track_col1:
-            st.markdown("#### ❌ Track 1: Standard AI Model")
-            std_verdict = telemetry.get("standard_ai_verdict", "CLEARED_LEGITIMATE")
-            std_conf = telemetry.get("standard_ai_confidence", 0.958)
+        # 2. Minimalist Dual-Track Evaluation Breakdown
+        with st.container(border=True):
+            track_col1, track_col2 = st.columns(2)
             
-            if is_attack:
-                st.markdown(f"""
-                <div class='track-card-fooled'>
-                    <h4 style='color: #ffb300; margin:0;'>⚠️ FOOLED BY ADVERSARIAL DRIFT</h4>
-                    <p style='color: #e0e0e0; font-size: 0.9rem; margin: 4px 0;'><strong>Verdict:</strong> {std_verdict}</p>
-                    <p style='color: #e0e0e0; font-size: 0.9rem; margin: 4px 0;'><strong>Model Confidence:</strong> {std_conf*100:.1f}%</p>
-                    <p style='color: #ffb300; font-size: 0.8rem; margin:0;'><i>Standard fraud classifier completely missed micro-perturbed payload!</i></p>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div class='track-card-good'>
-                    <h4 style='color: #00e676; margin:0;'>✅ TRANSACTION CLEARED</h4>
-                    <p style='color: #e0e0e0; font-size: 0.9rem; margin: 4px 0;'><strong>Verdict:</strong> {std_verdict}</p>
-                    <p style='color: #e0e0e0; font-size: 0.9rem; margin: 4px 0;'><strong>Confidence:</strong> {std_conf*100:.1f}%</p>
-                </div>
-                """, unsafe_allow_html=True)
+            with track_col1:
+                st.markdown("#### ❌ Track 1: Standard AI Model")
+                std_verdict = telemetry.get("standard_ai_verdict", "CLEARED_LEGITIMATE")
+                std_conf = telemetry.get("standard_ai_confidence", 0.958)
+                
+                if is_attack:
+                    st.markdown(f"""
+                    <div class='track-card-fooled'>
+                        <h4 style='color: #ffb300; margin:0;'>⚠️ FOOLED BY ADVERSARIAL DRIFT</h4>
+                        <p style='color: #e0e0e0; font-size: 0.88rem; margin: 4px 0;'><strong>Verdict:</strong> {std_verdict}</p>
+                        <p style='color: #e0e0e0; font-size: 0.88rem; margin: 4px 0;'><strong>Confidence:</strong> {std_conf*100:.1f}%</p>
+                        <p style='color: #ffb300; font-size: 0.78rem; margin:0;'><i>Standard classifier fooled by micro-perturbation!</i></p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div class='track-card-good'>
+                        <h4 style='color: #00e676; margin:0;'>✅ TRANSACTION CLEARED</h4>
+                        <p style='color: #e0e0e0; font-size: 0.88rem; margin: 4px 0;'><strong>Verdict:</strong> {std_verdict}</p>
+                        <p style='color: #e0e0e0; font-size: 0.88rem; margin: 4px 0;'><strong>Confidence:</strong> {std_conf*100:.1f}%</p>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-        with track_col2:
-            st.markdown("#### 🛡️ Track 2: Ghost Protocol Sentinel")
-            if is_attack:
-                st.markdown(f"""
-                <div class='track-card-bad'>
-                    <h4 style='color: #ff3366; margin:0;'>🚨 ADVERSARIAL ATTACK INTERCEPTED</h4>
-                    <p style='color: #e0e0e0; font-size: 0.9rem; margin: 4px 0;'><strong>Strategy:</strong> {status}</p>
-                    <p style='color: #e0e0e0; font-size: 0.9rem; margin: 4px 0;'><strong>Reconstruction Error:</strong> {recon_error:.3f} (Safety Limit: 7.50)</p>
-                    <p style='color: #ff3366; font-size: 0.8rem; margin:0;'><i>Off-manifold latent loss spiked. Shunted to Honeypot!</i></p>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div class='track-card-good'>
-                    <h4 style='color: #00e676; margin:0;'>🛡️ LATENT MANIFOLD VERIFIED</h4>
-                    <p style='color: #e0e0e0; font-size: 0.9rem; margin: 4px 0;'><strong>Strategy:</strong> {status}</p>
-                    <p style='color: #e0e0e0; font-size: 0.9rem; margin: 4px 0;'><strong>Reconstruction Error:</strong> {recon_error:.3f} (&lt; 7.50)</p>
-                </div>
-                """, unsafe_allow_html=True)
+            with track_col2:
+                st.markdown("#### 🛡️ Track 2: Ghost Protocol Sentinel")
+                if is_attack:
+                    st.markdown(f"""
+                    <div class='track-card-bad'>
+                        <h4 style='color: #ff3366; margin:0;'>🚨 ADVERSARIAL ATTACK INTERCEPTED</h4>
+                        <p style='color: #e0e0e0; font-size: 0.88rem; margin: 4px 0;'><strong>Vector Detected:</strong> (FGSM epsilon = 0.005)</p>
+                        <p style='color: #e0e0e0; font-size: 0.88rem; margin: 4px 0;'><strong>Strategy:</strong> {status}</p>
+                        <p style='color: #e0e0e0; font-size: 0.88rem; margin: 4px 0;'><strong>Reconstruction Error:</strong> {recon_error:.3f} (Safety Limit: 7.50)</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div class='track-card-good'>
+                        <h4 style='color: #00e676; margin:0;'>🛡️ LATENT MANIFOLD VERIFIED</h4>
+                        <p style='color: #e0e0e0; font-size: 0.88rem; margin: 4px 0;'><strong>Strategy:</strong> {status}</p>
+                        <p style='color: #e0e0e0; font-size: 0.88rem; margin: 4px 0;'><strong>Reconstruction Error:</strong> {recon_error:.3f} (&lt; 7.50)</p>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-        # Real-time Metrics Row
-        st.markdown("---")
-        m1, m2, m3 = st.columns(3)
-        with m1:
-            st.metric(
-                label="Autoencoder Latent Loss",
-                value=f"{recon_error:.2f}",
-                delta="CRITICAL SPIKE (> 7.5)" if is_attack else "Within Normal Baseline (< 4.0)",
-                delta_color="inverse" if is_attack else "normal"
-            )
-        with m2:
-            st.metric(
-                label="Mahalanobis Distance",
-                value=f"{mahal_dist:.2f}",
-                delta="Statistical Drift" if is_attack else "Stable Co-variance",
-                delta_color="inverse" if is_attack else "normal"
-            )
-        with m3:
-            st.metric(
-                label="Drunix DLT State",
-                value=latest.get("drunix_block_state", "COMMITTED"),
-                delta="Mutation Frozen" if is_attack else "State Root Updated",
-                delta_color="inverse" if is_attack else "normal"
-            )
+        # 3. Real-time Telemetry Metrics
+        with st.container(border=True):
+            m1, m2 = st.columns(2)
+            with m1:
+                st.metric(
+                    label="Mahalanobis Covariance Distance",
+                    value=f"{mahal_dist:.2f}",
+                    delta="Statistical Drift" if is_attack else "Stable Baseline Co-variance",
+                    delta_color="inverse" if is_attack else "normal"
+                )
+            with m2:
+                st.metric(
+                    label="Drunix DLT Consensus State",
+                    value=latest.get("drunix_block_state", "COMMITTED"),
+                    delta="Mutation Blocked" if is_attack else "State Root Committed",
+                    delta_color="inverse" if is_attack else "normal"
+                )
 
-        # Feature Residual Attribution Bar Chart
+        # 4. Feature Residual Attribution Bar Chart
         residuals = telemetry.get("feature_attributions", {})
         if residuals:
-            st.markdown("##### 🔬 Latent Layer Reconstruction Divergence by Feature")
-            res_df = pd.DataFrame(list(residuals.items()), columns=["Feature", "Reconstruction Residual"])
-            chart = alt.Chart(res_df).mark_bar().encode(
-                x=alt.X("Reconstruction Residual:Q", scale=alt.Scale(domain=[0, max(5.0, res_df['Reconstruction Residual'].max() + 0.5)])),
-                y=alt.Y("Feature:N", sort="-x"),
-                color=alt.condition(
-                    alt.datum["Reconstruction Residual"] > 1.5,
-                    alt.value("#ff3366"),
-                    alt.value("#00d2ff")
-                )
-            ).properties(height=160)
-            st.altair_chart(chart, use_container_width=True)
+            with st.container(border=True):
+                st.markdown("##### 🔬 Latent Layer Reconstruction Divergence by Feature")
+                res_df = pd.DataFrame(list(residuals.items()), columns=["Feature", "Reconstruction Residual"])
+                chart = alt.Chart(res_df).mark_bar().encode(
+                    x=alt.X("Reconstruction Residual:Q", scale=alt.Scale(domain=[0, max(5.0, res_df['Reconstruction Residual'].max() + 0.5)])),
+                    y=alt.Y("Feature:N", sort="-x"),
+                    color=alt.condition(
+                        alt.datum["Reconstruction Residual"] > 1.5,
+                        alt.value("#ff3366"),
+                        alt.value("#00d2ff")
+                    )
+                ).properties(height=160)
+                st.altair_chart(chart, use_container_width=True)
 
     else:
         st.info("Awaiting live ISO 20022 transaction stream packets to render real-time topology...")
@@ -441,21 +442,20 @@ with tab_ledger:
     st.markdown("#### Immutable Transaction State Ledger (Drunix Protocol)")
     if st.session_state.history:
         flat_records = []
-        for h in st.session_state.history:  # Newer records are at the top
-            t = h.get("telemetry", {})
-            recon_loss = h.get("reconstruction_error", t.get("reconstruction_error", 0.0))
+        for h in st.session_state.history:  # Newer records are at the top row (.insert(0, ...))
+            recon_loss = h.get("reconstruction_error", 0.0)
+            amt_val = h.get("amount", 0.0)
             flat_records.append({
-                "Tx ID": h.get("transaction_id"),
-                "Execution Strategy": h.get("execution_status"),
-                "Reconstruction Loss": round(recon_loss, 3),
-                "DLT Ledger State": h.get("drunix_block_state"),
-                "Block Hash / Root": h.get("block_hash", "0x0000000000000000"),
-                "Message": h.get("message")
+                "Time": h.get("timestamp", time.strftime("%H:%M:%S")),
+                "Principal Amount": f"${amt_val:,.2f}" if isinstance(amt_val, (int, float)) else str(amt_val),
+                "Anomaly Score": round(recon_loss, 3),
+                "System Action": h.get("execution_status"),
+                "Drunix Ledger State": h.get("drunix_block_state")
             })
         df_history = pd.DataFrame(flat_records)
-        st.dataframe(df_history, use_container_width=True)
+        st.dataframe(df_history, use_container_width=True, hide_index=True)
     else:
-        st.write("No transactions recorded on Drunix ledger yet.")
+        st.info("No transactions recorded on Drunix ledger yet.")
 
 with tab_honeypot:
     st.markdown("#### Active SLM Countermeasure & Threat Reverse Engineering")
