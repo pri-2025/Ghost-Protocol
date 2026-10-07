@@ -7,8 +7,8 @@
 
 ## Team Information
 * **Team Name:** Pixel Pioneers
-* **Team Leader:** Mrinmayee Aole (Machine Learning & Strategy)
-* **Team Member 2:** Prisha Parikh (Distributed Ledgers & Systems Integration)
+* **Team Leader:** Mrinmayee Aole 
+* **Team Member 2:** Prisha Parikh 
 * **Challenge Code:** CHL-7007
 * **Track / Theme:** Blockchain & Financial AI Security
 
