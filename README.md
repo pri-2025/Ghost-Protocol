@@ -1,11 +1,11 @@
-# 🌌 Project Ghost Protocol: Mirror-Verse Sentinel
+#  Project Ghost Protocol: Mirror-Verse Sentinel
 
 **Securing Institutional AI Infrastructure Against Adversarial Machine Learning & Hallucination Viruses**  
 *Citi Drunix Hackathon Flagship Submission*
 
 ---
 
-## 📌 Executive Summary & Problem Statement
+##  Executive Summary & Problem Statement
 
 As global tier-1 financial institutions like Citi migrate toward automated, high-throughput AI systems for risk assessment, liquidity management, and fraud detection, they introduce an insidious attack surface: **Adversarial Machine Learning (AML)**.
 
@@ -16,12 +16,12 @@ Sophisticated nation-state and cybercrime threat actors deploy **"Ghost Protocol
 
 ---
 
-## 🛠️ The Architecture: The Mirror-Verse Sentinel
+##  The Architecture: The Mirror-Verse Sentinel
 
 Instead of patching static rules, Project Ghost Protocol builds a **Generative Immune System** that creates a parallel digital twin to isolate, analyze, and neutralize adversarial data manipulation before transactions reach the immutable ledger.
 
 ```
-                  [ 🌐 Global Inbound Transaction Stream ]
+                  [ Global Inbound Transaction Stream ]
                                       │
                                       ▼
                         ┌───────────────────────────┐
@@ -59,7 +59,7 @@ Instead of patching static rules, Project Ghost Protocol builds a **Generative I
 
 ---
 
-## 📦 Project Structure
+##  Project Structure
 
 ```
 Ghost-Protocol/
@@ -82,7 +82,7 @@ Ghost-Protocol/
 
 ---
 
-## 🚀 Quickstart Deployment
+##  Quickstart Deployment
 
 ### 1. Initialize the Analytical Sentinel Node (Python)
 In a terminal, run:
@@ -113,7 +113,7 @@ streamlit run dashboard.py
 
 ---
 
-## 🧪 Running the Exploit Benchmark Suite
+##  Running the Exploit Benchmark Suite
 
 To mathematically demonstrate how the standard AI model is duped versus how Sentinel catches the attack:
 ```bash
@@ -126,7 +126,7 @@ python exploit_suite.py
 
 ---
 
-## 🏆 Presentation Highlights for Hackathon Judges
+##  Presentation Highlights for Hackathon Judges
 
 1. **Dual-Track Comparison:**
    - In the Streamlit UI, toggle **"Inject Adversarial ML Micro-Perturbation (FGSM)"**.
